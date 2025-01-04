@@ -15,8 +15,16 @@ with builtins;
     }
 }:
 let
+  name = "ec2instances.info";
+
   tools = with pkgs; {
+    actions = [
+      act
+    ];
     cli = [
+      bashInteractive_5
+      coreutils
+      curl
       jq
     ];
     formatters = [
@@ -36,6 +44,11 @@ let
         six
       ]))
     ];
+    scripts = [
+      (writeShellScriptBin "test_actions" ''
+        ${pkgs.act}/bin/act --artifact-server-path ./.cache/ -r --rm
+      '')
+    ];
   };
 
   packages = with pkgs; lib.flatten [
@@ -43,7 +56,7 @@ let
   ];
 
   env = pkgs.buildEnv {
-    name = "ec2instances.info";
+    inherit name;
     buildInputs = packages;
     paths = packages;
   };
